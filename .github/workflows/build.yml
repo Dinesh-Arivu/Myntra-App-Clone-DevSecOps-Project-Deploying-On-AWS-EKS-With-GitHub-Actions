@@ -44,4 +44,21 @@ jobs:
           docker-scout quickview dinesh1097/myntragithubaction:latest
           docker-scout cves dinesh1097/myntragithubaction:latest
 
+  deploy:
+   needs: build-analyze-scan   
+   runs-on: [self-hosted]
+   steps:
+      - name: docker pull image
+        run: docker pull dinesh1097/myntragithubaction:latest
+
+      - name: Docker Scout Image Scan
+        run: |
+          docker-scout quickview dinesh1097/myntragithubaction:latest
+          docker-scout cves dinesh1097/myntragithubaction:latest 
+  
+      - name: Deploy to container
+        run: docker run -d --name myntra -p 3000:3000 dinesh1097/myntragithubaction:latest          
+
+          
+
         
