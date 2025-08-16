@@ -4,19 +4,14 @@ set -e  # Stop script on any error
 set -u  # Exit on unset variable
 set -o pipefail  # Catch errors in pipelines
 
-echo "=== Updating system and installing Java (OpenJDK 17) ==="
+echo "=== Updating system and installing Java (temurin-17-jdk) ==="
 sudo apt update -y
-sudo apt install openjdk-17-jdk -y
-java -version
-
-echo "=== Installing Jenkins ==="
-curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
-sudo apt-get update -y
-sudo apt-get install jenkins -y
-sudo systemctl start jenkins
-sudo systemctl enable jenkins
-sudo systemctl status jenkins --no-pager
+sudo touch /etc/apt/keyrings/adoptium.asc
+sudo wget -O /etc/apt/keyrings/adoptium.asc https://packages.adoptium.net/artifactory/api/gpg/key/public
+echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list
+sudo apt update -y
+sudo apt install temurin-17-jdk -y
+/usr/bin/java --version
 
 echo "=== Installing Docker ==="
 sudo apt-get install docker.io -y
@@ -36,12 +31,9 @@ echo "=== Pulling and running SonarQube container ==="
 # SonarQube requires at least 2GB RAM; can fail otherwise
 docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
 
-echo "=== Installing Trivy ==="
-sudo apt-get install wget apt-transport-https gnupg lsb-release -y
-wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
-echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list > /dev/null
-sudo apt-get update
-sudo apt-get install trivy -y
+echo "=== Install Docker Scout ==="
+curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s -- -b /usr/local/bin
+docker-scout version
 
 echo "=== Install kubectl ==="
 sudo apt update
@@ -61,5 +53,11 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip
 sudo apt-get install unzip -y
 unzip awscliv2.zip
 sudo ./aws/install
+
+echo "=== Install Node.js 16 and npm ===" 
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/nodesource-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/nodesource-archive-keyring.gpg] https://deb.nodesource.com/node_16.x focal main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+sudo apt update
+sudo apt install -y nodejs
 
 echo "=== All installations completed successfully ==="
