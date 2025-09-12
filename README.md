@@ -1,3 +1,7 @@
+### DevSecOps Project Diagram:
+<img width="471" height="309" alt="Myntra App Clone DevSecOps Project Deploying On AWS EKS With GitHub Actions" src="https://github.com/user-attachments/assets/24c7533b-942e-4f6c-8dfb-e27727627b65" />
+
+
 <img width="960" alt="Home" src="https://user-images.githubusercontent.com/96285027/235316694-52148226-09f7-494f-9012-6dec10d2980c.png">
 <img width="960" alt="House-living" src="https://user-images.githubusercontent.com/96285027/235316695-d4fbbb63-c890-427c-b133-645f85ef4774.png">
 <img width="960" alt="Login" src="https://user-images.githubusercontent.com/96285027/235316699-840e1497-3283-4cbd-8d74-0b3f4776b384.png">
